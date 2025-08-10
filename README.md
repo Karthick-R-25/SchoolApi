@@ -12,7 +12,5 @@ Includes endpoints to **add schools** and **list schools by distance** from a gi
 - Input validation using **express-validator**.
 - Secure configuration via environment variables.
 
----
-
 
 
