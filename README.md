@@ -15,6 +15,4 @@ Includes endpoints to **add schools** and **list schools by distance** from a gi
 ---
 
 
----
-
 
