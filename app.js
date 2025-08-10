@@ -1,7 +1,5 @@
 
 require('dotenv').config();
-
-
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -43,7 +41,7 @@ router.post(
 
     try {
       const [result] = await pool.execute(
-        'INSERT INTO schools (name, address, latitude, longitude) VALUES (?, ?, ?, ?)',
+        'INSERT INTO school (name, address, latitude, longitude) VALUES (?, ?, ?, ?)',
         [name, address, latitude, longitude]
       );
       res.status(201).json({
@@ -91,7 +89,7 @@ router.get('/listSchools', async (req, res) => {
           COS(RADIANS(longitude) - RADIANS(?)) +
           SIN(RADIANS(?)) * SIN(RADIANS(latitude))
         )) AS distance_km
-       FROM schools
+       FROM school
        ORDER BY distance_km ASC
        LIMIT ?`,
       [latitude, longitude, latitude, limit]
@@ -107,6 +105,28 @@ router.get('/listSchools', async (req, res) => {
     res.status(500).json({ error: 'Could not fetch school list' });
   }
 });
+router.get('/createTable', async (req, res) => {
+  const createTableSQL = `
+    CREATE TABLE IF NOT EXISTS school (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      address VARCHAR(500) NOT NULL,
+      latitude DECIMAL(9,6) NOT NULL CHECK (latitude BETWEEN -90 AND 90),
+      longitude DECIMAL(9,6) NOT NULL CHECK (longitude BETWEEN -180 AND 180),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `;
+
+  try {
+    await pool.query(createTableSQL);
+    console.log('Table created or already exists');
+    res.send('Table created or already exists');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error creating table');
+  }
+});
+
 
 router.get('/', (req, res) => {
   res.send('School API is running');
